@@ -1,6 +1,8 @@
 * Org-mode D&D 5e Character Template
 Flexible Character Sheet with auto-updating stats, spell descriptions, and pretty
-latex export.
+latex export. See the template pdf to get an idea of what the exported form looks like.
+
+Warning: I havn't tested this outside of my personal setup.
 * Requirements
 ** Org With Babel
 Functions for updating tables (as well as some fixes for our use of
