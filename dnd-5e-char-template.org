@@ -1,0 +1,524 @@
+#+TITLE: Character Name
+#+LATEX_CLASS: dnd
+#+OPTIONS: toc:nil title:nil H:5
+#+EXCLUDE_TAGS: noexport
+
+#+LATEX: % Work around to make links to spells work
+#+LATEX: \let\oldlabel\label
+#+LATEX: \let\oldhyperref\hyperref
+#+LATEX: \renewcommand{\label}[1]{\oldlabel{#1}\hypertarget{#1}{}}
+#+LATEX: \renewcommand{\hyperref}[2][]{\hyperlink{#1}{#2}}
+* [Character Name] \hspace*{\fill}{\itshape [Race] [Class]}
+     \large
+     #+NAME: LEVEL
+     #+ATTR_DND: :color DmgSlateGray
+    | *Level*             |  1 |
+    | *Proficiency Bonus* | +2 |
+     #+TBLFM: @2$2='(org-dnd-char-level-to-prof @1$2)
+     \normalsize
+****  Instructions :noexport:
+replace [Character Name] with your character's name
+replace [Race] with your character's race
+guess what you do with [Class]
+
+Fill in level (and update it when you level up) Proficiency Bonus will fill in
+automatically if you put the appropriate values in the function at the bottom of
+the file
+
+*** Ability Scores
+  \large
+    #+NAME: ATTRIBUTES
+    #+ATTR_DND: :color DmgCoral
+    | *Ability*   | *Value* | *Mod* | *Save* |
+    | *STR*       |       8 |    -1 |     +0 |
+    | *DEX*   *** |      14 |    +2 |     +4 |
+    | *CON*       |      12 |    +1 |     +1 |
+    | *INT*       |      10 |    +0 |     +0 |
+    | *WIS*       |      13 |    +1 |     +1 |
+    | *CHA*   *** |      15 |    +2 |     +4 |
+    #+TBLFM: @2$3..@>$3='(org-dnd-char-stat-to-mod $2) ::  @3$4..@>$4='(if (string-match "\\*\\*\\*" $1) (org-dnd-char-mod-string (+ (string-to-number $3)  (string-to-number remote(LEVEL, @2$2)))) $3)
+     \normalsize
+
+**** Instructions :noexport:
+Only need to fill in Value (and update as any of those values change)
+*** Skills
+  \large
+     #+NAME: SKILLS
+     #+ATTR_DND: :color DmgLilac
+     |     | *Skills*              | *Check* |
+     | *** | Acrobatics (Dex)      |      +4 |
+     |     | Animal Handling (Wis) |      +1 |
+     |     | Arcana (Int)          |      +0 |
+     |     | Athletics (Str)       |      -1 |
+     | *** | Deception (Cha)       |      +4 |
+     |     | History (Int)         |      +0 |
+     |     | Insight (Wis)         |      +1 |
+     |     | Intimidation (Cha)    |      +2 |
+     |     | Investigation (Int)   |      +0 |
+     |     | Medicine (Wis)        |      +1 |
+     |     | Nature (Int)          |      +0 |
+     |     | Perception (Wis)      |      +1 |
+     | *** | Performance (Cha)     |      +4 |
+     |     | Persuasion (Cha)      |      +2 |
+     |     | Religion (Int)        |      +0 |
+     | *** | Sleight of Hand (Dex) |      +4 |
+     | *** | Stealth (Dex)         |      +4 |
+     |     | Survival (Wis)        |      +1 |
+     #+TBLFM:  @2$3..@>$3='(org-dnd-char-skill-mod $1 $2 remote(LEVEL, @2$2) (list remote(ATTRIBUTES, @2$3..@>$3)))
+     \normalsize
+
+      | *Passive Wisdom (Perception):* | 11 |
+     #+TBLFM: @1$2 = 10+remote(SKILLS, @13$3)
+
+   - Languages: ::  Common, ...
+**** Instructions :noexport:
+Only put '***' in the first column for skills you are proficient in, modifiers
+should change automatically
+
+Fill in Languages
+*** Status
+
+  \large
+    #+NAME: DERIVED0
+    #+ATTR_DND: :color PhbLightCyan
+    | *Armor Class* | *Initiative Mod* | *Movement* |
+    |            14 |               +3 |         30 |
+
+    #+NAME: HEALTH
+    #+ATTR_DND: :color PhbLightCyan
+    | *HP* (Max 10) | *Temp HP* | *HD* (Total 1d8) |
+    |            10 |         0 |              1d8 |
+\normalsize
+    
+**** Other status effects                                          :noexport:
+     \noindent
+     *INSPIRATION:* Advantage
+
+       - DEATH FAILS ::  XX
+       - DEATH SAVES :: X
+
+**** Instructions :noexport:
+This section should mostly be managed manually for now. Copy paste bits from
+'other status effects' above that header as needed.
+
+You can of course add rules for automatically populating hit dice, initiative,
+and armor class. These vary with class and feats so this is left up to you if
+you wish.
+*** Features
+**** Actions
+     | *Feature*          | *Note* | *Uses Left* |
+     | [[Bardic Inspiration][Bardic Inspiration]] |    1d6 |           4 |
+**** Passive
+     | *Feature*         | *Note*                 |
+     | [[By Popular Demand][By Popular Demand]] | music for food/lodging |
+**** Instructions :noexport:
+This section is mostly managed manually, Bard class and Entertainer background
+features are here as an example.
+*** Spellcasting
+   \large
+   #+NAME: SPELLSDERIVED
+   #+ATTR_DND: :color PhbMauve
+   | *Spell Ability* | *Save DC* | *Attack Bonus* |
+   | CHA             |        12 |              4 |
+   #+TBLFM: @2$2=8+remote(ATTRIBUTES, @7$3)+remote(LEVEL, @2$2) :: @2$3=remote(ATTRIBUTES, @7$3)+remote(LEVEL, @2$2)
+     \normalsize
+
+**** Spell Slots
+ #+NAME: SPELLSLOTS
+ #+ATTR_DND: :color PhbMauve
+ | *Spell Level* | *Slots* | *Expended* |
+ |             1 |       2 |          0 |
+ |             2 |       0 |          0 |
+ |             3 |       0 |          0 |
+ |             4 |       0 |          0 |
+ |             5 |       0 |          0 |
+ |             6 |       0 |          0 |
+ |             7 |       0 |          0 |
+ |             8 |       0 |          0 |
+ |             9 |       0 |          0 |
+ #+TBLFM: @2$2..@>$2='(aref (org-dnd-char-spell-slots remote(LEVEL, @1$2)) (- (string-to-number $1) 1))
+
+**** Known Spells 
+    #+ATTR_DND: :color PhbMauve
+   | *Cantrips Known* | *Spells Known* | *Max level* |
+   |                2 |              4 |           1 |
+    #+TBLFM: @2$1='(org-dnd-char-level-to-cantrips-known remote(LEVEL, @1$2)) :: @2$2='(org-dnd-char-level-to-spells-known remote(LEVEL, @1$2)) :: @2$3='(org-dnd-char-level-to-max-spell remote(LEVEL, @1$2))
+    #+NAME: SPELLS_KNOWN
+    #+ATTR_DND: :color PhbMauve
+    | *Level* | *Spell*            |
+    |       0 | [[Prestidigitation][Prestidigitation]]   |
+    |       0 | [[Mage Hand][Mage Hand]]          |
+    |       1 | [[Healing Word][Healing Word]]       |
+    |       1 | [[Sleep][Sleep]]              |
+    |       1 | [[Speak with Animals][Speak with Animals]] |
+    |       1 | [[Faerie Fire][Faerie Fire]]        |
+***** Instructions :noexport:
+Fill in links to spells and (if you spelled them carefully) the descriptions
+will automatically appear in the Spells section. Links in the Spell Column
+should be org-mode links of the style:
+#+BEGIN_SRC
+[[Spell Name][Spell Name]]
+#+END_SRC
+so that pdf links (and the spell descriptions) work properly .
+*** Equipment
+ #+NAME: WEAPONS
+ | *Weapon*     | *ATK Bonus* | *Damage/Type*  | *Range* |
+ | Rapier       |          +5 | 1d8+3 piercing |         |
+ | Crossbow (l) |          +5 | 1d8+3 piercing | 80/320  |
+
+  #+NAME: COIN
+  | *CP*          | 0 |
+  | *SP*          | 0 |
+  | *EP*          | 0 |
+  | *GP*          | 0 |
+  | *PP*          | 0 |
+  | Total (in GP) | 0 |
+#+TBLFM: @>$2= @1$2 / 100 + @2$2 / 10 + @3$2 / 2 + @4$2 + @5$2 * 10
+
+  #+NAME: GEAR
+  #+ATTR_DND: :long dndlongtable
+  | *Item*               | *Weight* | *Notes*   | *#* |
+  | *** Rapier           |        5 |           |   1 |
+  | *** Leather Armor    |       10 | AC=11+DEX |   1 |
+  | *** Crossbow (l)     |        5 |           |   1 |
+  | ball bearings  x1000 |        2 |           |  70 |
+  | *total weight*       |      160 | /120 max  |     |
+  #+TBLFM: @>$2=vsum(@2$2..@-1$2 * @2$4..@-1$4) :: @>$3 = '(concat "/" (number-to-string (* 15 (string-to-number remote(ATTRIBUTES, @2$2)))) " max")
+
+  \noindent *** indicates that the item is currently equipped (being worn,
+  sheathed, on back or otherwise accessible)
+
+***** Instructions :noexport:
+Weapons are managed manually (add your own rules to the table for each weapon if you desire).
+
+Coin totals will be calculated automatically (just fill in how much of each).
+
+Gear Weight are calculated automatically from the individual weights, quantity (under #).
+Coins are not included in this weight (who does that).
+Max weight is computed automatically from STR
+**** starting equipment buy in calculator :noexport:
+   I rolled 130 GP
+   | item                 | weight | price (gp) | quantity |
+   | leather armor        |     10 |         10 |        1 |
+   | crossbow (l)         |      5 |         25 |        1 |
+   | rapier               |      2 |         25 |        1 |
+   | ball bearings  x1000 |      2 |          1 |       70 |
+   | total                |    157 |        130 |          |
+   #+TBLFM: @>$2=vsum(@2$2..@>>$2 * @2$4..@>>$4) :: @>$3=vsum(@2$3..@>>$3 * @2$4..@-1$4)
+***** Instructions :noexport:
+The above table can be used to calculate prices and weights
+**** Proficiencies
+     Light armor, simple weapons, hand crossbows, longswords,
+     rapiers, shortswords, disguise kit, ...
+***** Instructions :noexport:
+not automated just replace above
+** Character
+- Alignment: :: Neutral
+   #+BEGIN_QUOTEBOX
+   "A thing your character might say"
+   #+END_QUOTEBOX
+*** Personality traits
+*** Ideals
+*** Bonds
+*** Flaws
+*** Appearance
+*** Backstory
+*** Contacts
+    - Some Guy :: Notes on that dude
+    - Some Gal :: She seems pretty cool
+*** Instructions :noexport:
+Fill in and replace as desired none of this section is automated.
+* Notes
+** Instructions :noexport:
+Fill in and replace as desired none of this section is automated.
+* Spells
+#+BEGIN_SRC python :exports results :results output drawer :var spell_table=SPELLS_KNOWN
+# auto generate spell entries from the SPELLS_KNOWN TABLE
+# add any other other spells to show not listed under 'known spells' (mostly for spells from features/feats)
+# ex: additional_spells = ["Levitate", "Gust"]
+additional_spells = []
+import json
+with open('./srd_spells/spells.json') as f:
+    spell_list = json.load(f)
+spells_dict = {spell['name']: spell for spell in spell_list}
+spell_templ = """
+     <<{link_name}>>
+    ,#+NAME: {name}
+    ,#+ATTR_SPELL: :level {level} :school {school} :range {range} :cast {casting_time} :duration {duration} :comp {component_string}
+    ,#+BEGIN_SPELL
+    {description} {higher_levels_string}
+    ,#+END_SPELL
+"""
+spell_list = sorted(additional_spells
+                    +
+                    [row[1].split(']')[0].replace('[', '')
+                     for row in spell_table[1:]])
+for  spell_name in spell_list:
+    this_spell = {}
+    try:
+        this_spell.update(spells_dict[spell_name])
+    except KeyError as e:
+        print("{} is not in the json file".format(e))
+        continue
+    this_spell['link_name'] = spell_name
+    this_spell['component_string'] = this_spell['components']['raw']
+    if this_spell['level'] == 'cantrip':
+        this_spell['level'] = 0
+    if this_spell['ritual']:
+        this_spell['school'] = "{} (ritual)".format(this_spell['school'])
+    if 'higher_levels' in this_spell:
+        this_spell['higher_levels_string'] = "\n\n*At Higher Levels.* {}".format(this_spell['higher_levels'])
+    else:
+        this_spell['higher_levels_string'] = ""
+    this_spell['description'] = this_spell['description'].replace('*', '-')
+    try:
+        print(spell_templ.format(**this_spell))
+    except KeyError as e:
+        print('{} does not have a value for {}'.format(spell_name, e))
+#+END_SRC
+** Instructions :noexport:
+Should automatically execute when exporting, reads from the SPELLS_KNOWN table to
+populate with each spell. Additional spells you want displayed can be added to
+this list at the beginning of the source (see the comment for an example).
+
+** New Spells explorer (if you like python) :noexport:
+List spells by level/class
+#+BEGIN_SRC python :exports results :results output drawer
+import json
+with open('./srd_spells/spells.json') as f:
+    spell_list = json.load(f)
+for spell in spell_list:
+    if spell['level'] == '1' and 'bard' in spell['classes']:
+        print(spell['name'])
+        print(spell['range'])
+        print(spell['casting_time'])
+        print(spell['duration'])
+        print()
+        print(spell['description'].replace('*', '-'))
+        print()
+        print()
+        print()
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+
+:END:
+
+* Features
+*** Actions
+     <<Bardic Inspiration>> *Bardic Inspiration.* You can inspire others through
+     stirring words or music. To do so, you use a bonus action on your turn to
+     choose one creature other than yourself within 60 feet of you who can hear
+     you. That creature gains one Bardic Inspiration die, a d6. Once within the
+     next 10 minutes, the creature can roll the die and add the number rolled to
+     one ability check, attack roll, or saving throw it makes. The creature can
+     wait until after it rolls the d20 before deciding to use the Bardic
+     Inspiration die, but must decide before the GM says whether the roll
+     succeeds or fails. Once the Bardic Inspiration die is rolled, it is lost. A
+     creature can have only one Bardic Inspiration die at a time. You can use
+     this feature a number of times equal to your Charisma modifier (a minimum
+     of once). You regain any expended uses when you finish a long rest. Your
+     Bardic Inspiration die changes when you reach certain levels in this class.
+     The die becomes a d8 at 5th level, a d10 at 10th level, and a d12 at 15th
+     level.
+*** Passive
+     <<By Popular Demand>>
+     *By Popular Demand.* You can always find a place to perform, usually
+     in an inn or tavern but possibly with a circus, at a theater, or
+     even in a noble’s court. At such a place, you receive free
+     lodging and food of a modest or comfortable standard (depending
+     on the quality of the establishment), as long as you perform each
+     night. In addition, your performance makes you something of a
+     local figure. When strangers recognize you in a town where you
+     have performed, they typically take a liking to you.
+*** Instructions :noexport:
+This bit isn't automated yet, copy and paste from a wiki or elsewhere as you get
+features you'd like to list here. I've left two features here as examples,
+'Bardic Inspiration' (from the Bard class) and 'By Popular Demand' (from the
+Entertainer background).
+* Function Definitions (run when opening file with C-c C-c) :noexport:
+** code
+#+NAME: startup
+#+begin_src elisp :export none :results silent
+;;; First few bits are workarounds
+;;; to get ox-dnd to work well with our tables.
+(setf (cadr (assoc "dnd" org-latex-classes))
+      "\\documentclass[letterpaper,10pt,twoside,twocolumn,openany]{book}
+[NO-DEFAULT-PACKAGES]
+\\usepackage[AUTO]{babel}
+\\usepackage[utf8]{inputenc}
+\\usepackage[T1]{fontenc}
+\\usepackage{hyperref}
+\\usepackage{dnd}
+\% dndlongtable from https://gist.github.com/benwebber/26e8567380c9f4e291b12a8da3c651c8
+\\usepackage{xtab}
+\\makeatletter
+\\NewDocumentEnvironment{dndlongtable}{O{>{\\centering}p{0.1\\linewidth} p{0.8\\linewidth}} O{tablecolor}}{
+  \\par\\vspace*{8pt}
+  \\noindent
+  \\dnd@TableBodyFont
+  \\rowcolors{1}{}{#2}
+  \\xentrystretch{-0.1}
+  \\begin{xtabular*}{\\linewidth}{#1}
+}{
+  \\end{xtabular*}
+  \\vspace{8pt plus 1pt}
+  \\noindent
+}
+\\makeatother")
+
+ ; redefine, now with more than 2 columns, and allow for dndlongtable
+(defun org-dnd-table (table contents info)
+  "Transcode a table from Org to a D&D LaTeX table.
+  CONTENTS holds the contents of the table.  INFO is a plist holding
+  contextual information."
+  (let ((header (first (org-element-property :header table)))
+        (align (org-export-read-attribute :attr_dnd table :align))
+        (long (org-export-read-attribute :attr_dnd table :long))
+        (color (org-export-read-attribute :attr_dnd table :color)))
+    (format
+     "%s%s"
+     (if header (format "\\header{%s}\n" header) "")
+     (replace-regexp-in-string
+      "begin{tabular.*"
+      (format "begin{%s}%s%s"
+              (format "%s" (if long "dndlongtable" "dndtable"))
+              (if align (format "[%s]" align) (format "[%s]" (org-latex--align-string table info)))
+              (if color (format "[%s]" color) "")
+              )
+      (replace-regexp-in-string
+       "end{tabular}"
+       (format "end{%s}" (if long "dndlongtable" "dndtable"))
+       (replace-regexp-in-string
+        "{table}"
+        "{table*}"
+        (replace-regexp-in-string
+         "\\\\\\(begin\\|end\\){center}\n?"
+         ""
+         (replace-regexp-in-string
+          "\\\\centering"
+          ""
+          (org-latex-table table contents info)))))))));)
+
+; update table values on export
+(advice-add 'org-dnd-export-to-pdf :before
+            (lambda (&rest r) (org-table-iterate-buffer-tables)))
+
+;;; Below are used in table calcualtions
+(defun org-dnd-char-mod-string (mod)
+  (if (> mod -1)
+      (concat "+" (number-to-string mod))
+    (number-to-string mod))
+  )
+
+(defun org-dnd-char-stat-to-mod (stat)
+  (let ((mod
+         (floor (/ (- (string-to-number stat) 10) 2.0))))
+    (org-dnd-char-mod-string mod))
+  )
+
+(defun org-dnd-char-skill-to-attribute-index (skill)
+  (cond
+   ((or
+     (string-match "Acrobatics" skill)
+     (string-match "Sleight of Hand" skill)
+     (string-match "Stealth" skill))
+    1) ;DEX
+   ((or
+     (string-match "Animal Handling" skill)
+     (string-match "Insight" skill)
+     (string-match "Medicine" skill)
+     (string-match "Perception" skill)
+     (string-match "Survival" skill))
+    4) ;WIS
+   ((or
+     (string-match "Arcana" skill)
+     (string-match "History" skill)
+     (string-match "Investigation" skill)
+     (string-match "Nature" skill)
+     (string-match "Religion" skill))
+    3) ;INT
+   ((string-match "Athletics" skill)
+    0) ;STR
+   ((or
+     (string-match "Deception" skill)
+     (string-match "Intimidation" skill)
+     (string-match "Performance" skill)
+     (string-match "Persuasion" skill))
+    5))); CHA
+
+(defun org-dnd-char-skill-mod (prof-check skill-name prof-mod attr-mods)
+  (org-dnd-char-mod-string
+   (+
+    (string-to-number
+     (nth
+      (org-dnd-char-skill-to-attribute-index skill-name)
+      attr-mods))
+    (if (string-match "\\*\\*\\*" prof-check)
+        (string-to-number prof-mod)
+      0; (floor (/ (string-to-number prof-mod) 2.0)) ; replace 0 with this when we get jack of all trades
+      )
+    (if (string-match "\\*\\+\\*" prof-check) ; for bard feature 'Expertise'
+        (string-to-number prof-mod)
+      0)
+    )))
+
+(defun org-dnd-char-level-to-prof (level)
+  (org-dnd-char-mod-string
+   (nth (string-to-number level)
+        '(2 2 2 2 3 3 3 3 4 4 4 4 5 5 5 5 6 6 6 6))) ;BARD SPECIFIC, FILL IN YOUR CLASS'S VALUES HERE
+  )
+
+(defun org-dnd-char-level-to-cantrips-known (level)
+  (nth (- (string-to-number level) 1 )
+       '(2 2 2 3 3 3 3 3 3 4 4 4 4 4 4 4 4 4 4 4)) ;BARD SPECIFIC, FILL IN YOUR CLASS'S VALUES HERE
+  )
+
+(defun org-dnd-char-level-to-spells-known (level)
+  (nth (- (string-to-number level) 1)
+       '(4 5 6 7 8 9 10 11 12 14 15 15 16 18 19 19 20 22 22 22)) ;BARD SPECIFIC, FILL IN YOUR CLASS'S VALUES HERE
+  )
+
+(defun org-dnd-char-level-to-max-spell (level) ; replace with a function that calls org-dnd-char-spell-slots
+  (nth (- (string-to-number level) 1)
+       '(1 1 2 2 3 3 4 4 5 5 6 6 6 7 7 8 8 9 9 9)) ;BARD SPECIFIC, FILL IN YOUR CLASS'S VALUES HERE
+  )
+
+(defun org-dnd-char-spell-slots (level)
+  (let ((slot-matrix
+         [ ;BARD SPECIFIC, FILL IN YOUR CLASS'S VALUES HERE
+          [2 0 0 0 0 0 0 0 0]
+          [3 0 0 0 0 0 0 0 0]
+          [4 2 0 0 0 0 0 0 0]
+          [4 3 0 0 0 0 0 0 0]
+          [4 3 2 0 0 0 0 0 0]
+          [4 3 3 0 0 0 0 0 0]
+          [4 3 3 1 0 0 0 0 0]
+          [4 3 3 2 0 0 0 0 0]
+          [4 3 3 3 1 0 0 0 0]
+          [4 3 3 3 2 0 0 0 0]
+          [4 3 3 3 2 1 0 0 0]
+          [4 3 3 3 2 1 0 0 0]
+          [4 3 3 3 2 1 1 0 0]
+          [4 3 3 3 2 1 1 0 0]
+          [4 3 3 3 2 1 1 1 0]
+          [4 3 3 3 2 1 1 1 0]
+          [4 3 3 3 3 1 1 1 1]
+          [4 3 3 3 3 2 1 1 1]
+          [4 3 3 3 3 2 2 1 1]
+          ]))
+    (aref slot-matrix (- (string-to-number level) 1)))
+  )
+#+end_src
+** Instructions :noexport:
+Run the above when opening the file before exporting.
+
+For now you must fill in the lists and matrices according to your classes table
+in the player's handbook. An example for Bards is provided, there are comments
+in the sections indicating what bits are Bard specific.
+
+If a particular feature, feat, or other rule modifies your stats you can modify
+these functions to reflect that. There is a comment with an example for the
+Bard 'Jack of All Trades' feature. This will require a bit of minimal amount of
+elisp knowledge.

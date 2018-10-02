@@ -1,0 +1,3 @@
+[submodule "srd_spells"]
+	path = srd_spells
+	url = https://github.com/vorpalhex/srd_spells.git

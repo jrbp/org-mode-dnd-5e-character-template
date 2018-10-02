@@ -1,0 +1,22 @@
+* Org-mode D&D 5e Character Template
+Flexible Character Sheet with auto-updating stats, spell descriptions, and pretty
+latex export.
+* Requirements
+** Org With Babel
+Functions for updating tables (as well as some fixes for our use of
+[[https://github.com/xeals/emacs-org-dnd][emacs-org-dnd]]) are defined in an elisp babel block.
+
+The spell descriptions are generated in a python babel block using the json file
+from [[https://github.com/vorpalhex/srd_spells][srd_spells]] (included as a git submodule).
+
+Clearly org, babel, and python must all be configured appropriately.
+** PDF Export
+Needs [[https://github.com/evanbergeron/DND-5e-LaTeX-Template][Dnd-5e-Latex-Template]] and [[https://github.com/xeals/emacs-org-dnd][emacs-org-dnd]] configured and working.
+* Usage
+In each section there is a header 'Instructions' which is not exported to the
+pdf. Under this header are instructions on how to use the parts of that section
+(what will update automatically and what must be filled in manually).
+
+Be sure to run the function definition SRC block when opening the file.
+
+Export to pdf using ox-dnd (C-c C-e l d).
