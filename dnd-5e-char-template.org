@@ -252,13 +252,21 @@ spell_list = sorted(additional_spells
                     +
                     [row[1].split(']')[0].replace('[', '')
                      for row in spell_table[1:]])
-for  spell_name in spell_list:
+for spell_name in spell_list:
     this_spell = {}
     try:
         this_spell.update(spells_dict[spell_name])
     except KeyError as e:
-        print("{} is not in the json file".format(e))
-        continue
+        this_spell['name'] = spell_name
+        this_spell['link_name'] = spell_name
+        this_spell['school'] = 'n/a'
+        this_spell['range'] = 'n/a'
+        this_spell['casting_time'] = 'n/a'
+        this_spell['duration'] = 'n/a'
+        this_spell['components'] = {'raw': 'n/a'}
+        this_spell['level'] = 'n/a'
+        this_spell['description'] = 'not available (not in srd json file)'
+        this_spell['ritual'] = None
     this_spell['link_name'] = spell_name
     this_spell['component_string'] = this_spell['components']['raw']
     if this_spell['level'] == 'cantrip':
