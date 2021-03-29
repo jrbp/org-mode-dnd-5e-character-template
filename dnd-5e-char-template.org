@@ -231,6 +231,18 @@ Fill in and replace as desired none of this section is automated.
 ** Instructions :noexport:
 Fill in and replace as desired none of this section is automated.
 * Spells
+
+#+begin_src elisp  :exports results :results output drawer  :var spell_table=SPELLS_KNOWN
+(print (get-spell-string))
+#+end_src
+
+** Instructions :noexport:
+Should automatically execute when exporting, reads from the SPELLS_KNOWN table to
+populate with each spell. Additional spells you want displayed can be added to
+this list at the beginning of the source.
+
+** old python version :noexport:
+
 #+BEGIN_SRC python :exports results :results output drawer :var spell_table=SPELLS_KNOWN
 # auto generate spell entries from the SPELLS_KNOWN TABLE
 # add any other other spells to show not listed under 'known spells' (mostly for spells from features/feats)
@@ -284,18 +296,10 @@ for spell_name in spell_list:
         print('{} does not have a value for {}'.format(spell_name, e))
 #+END_SRC
 
-#+RESULTS:
-:results:
-:end:
-
-** Instructions :noexport:
-Should automatically execute when exporting, reads from the SPELLS_KNOWN table to
-populate with each spell. Additional spells you want displayed can be added to
-this list at the beginning of the source (see the comment for an example).
 
 ** New Spells explorer (if you like python) :noexport:
 List spells by level/class
-#+BEGIN_SRC python :exports results :results output drawer
+#+BEGIN_SRC python :export none :results output drawer
 import json
 with open('./srd_spells/spells.json') as f:
     spell_list = json.load(f)
@@ -312,10 +316,6 @@ for spell in spell_list:
         print()
 #+END_SRC
 
-#+RESULTS:
-:RESULTS:
-
-:END:
 
 * Features
 *** Actions
@@ -508,6 +508,58 @@ contextual information."
           ]))
     (aref slot-matrix (- (string-to-number level) 1)))
   )
+
+(defun get-spell-data (spell_names)
+  "Get alist with a key for each element of SPELL_NAMES.
+Each value is the corresponding SRD data, no entry if element is not in SRD."
+  (let ((spell-data 'nil)
+        (json-array-type 'list) (json-false 'nil))
+    (dolist (spell (json-read-file "./srd_spells/spells.json") spell-data)
+      (let ((this_name (alist-get 'name spell)))
+        (if (member this_name spell_names)
+            (push (cons this_name spell) spell-data))))))
+
+(defun link-to-spellname (link-string)
+    (replace-regexp-in-string
+     "\\[\\[\\(.*\\)\\]\\[.*\\]\\]"  "\\1" link-string))
+
+(defun srd-alist-to-format-alist (spell_data)
+  "corrections given srd alist return alist to use formatting latex strings"
+  (let-alist spell_data
+    (append `((component_string . ,.components.raw)
+              (level . ,(if (equal .level "cantrip")
+                            0 .level))
+              (school . ,(if .ritual
+                             (format "%s (ritual)" .school) .school))
+              (higher_levels_string . ,(if .higher_levels
+                                           (format "\n\n*At Higher Levels.* %s"
+                                                   .higher_levels) ""))
+              (description . ,(replace-regexp-in-string "*" "-" .description)))
+            spell_data)))
+
+(defun get-spell-names ()
+  "parse the spell table for spell names"
+  (let ((spell_names '("Levitate" "Homebrew"))) ; add aditional spells here
+    (dolist (spell (cdr spell_table) spell_names)
+      (push (link-to-spellname (cadr spell)) spell_names))))
+
+(defun get-spell-string ()
+  (let* ((spell_names (-sort #'string< (get-spell-names)))
+         (spell_data (get-spell-data spell_names))
+         (template "\n <<${name}>>\n#+NAME: ${name}
+,#+ATTR_SPELL: :level ${level} :school ${school} :range ${range} :cast ${casting_time} :duration ${duration} :comp ${component_string}
+,#+BEGIN_SPELL\n ${description} ${higher_levels_string}\n #+END_SPELL\n")
+         (result ""))
+    (dolist (spell_n spell_names result)
+      (setq result
+            (concat result
+                    (if (a-has-key spell_data spell_n)
+                        (s-format template 'aget
+                                  (srd-alist-to-format-alist (a-get spell_data spell_n)))
+                      (s-format template
+                                (lambda (key map) (a-get map key "n/a"))
+                                `(("name" . ,spell_n)
+                                  ("description" . "Not available (liekly not in srd json)")))))))))
 #+end_src
 ** Instructions :noexport:
 Run the above source block when opening the file before exporting.
@@ -520,58 +572,3 @@ If a particular feature, feat, or other rule modifies your stats you can modify
 these functions to reflect that. There is a comment with an example for the Bard
 'Jack of All Trades' feature. This will require a bit of elisp, but allows for
 straightforward homebrew.
-*  testing elisp spell block :noexport:
-
-want to port the python bit to elisp, working on here
-
-hashmap vs alist, does it matter?
-
-#+begin_src elisp
-
-;;; Code:
-
-(defun get-spell-data (spell_names)
-  "Get alist with a key for each element of SPELL_NAMES.
-Each value is the corresponding SRD data, no entry if element is not in SRD."
-  (let ((spell-data (make-hash-table :test 'equal))
-        (json-array-type 'list) (json-false 'nil))
-    (dolist (spell (json-read-file "./srd_spells/spells.json") spell-data)
-      (let ((this_name (alist-get 'name spell)))
-        (if (member this_name spell_names)
-            (puthash this_name spell spell-data))))))
-
-(alist-get 'classes (gethash "Levitate" (get-spell-data '("Levitate" "Gust"))))
-
-#+end_src
-
-#+RESULTS:
-| sorcerer | wizard |
-
-
-#+begin_src elisp
-
-;;; Code:
-
-(defun get-spell-data-a (spell_names)
-  "Get alist with a key for each element of SPELL_NAMES.
-Each value is the corresponding SRD data, no entry if element is not in SRD."
-  (let ((spell-data 'nil)
-        (json-array-type 'list) (json-false 'nil))
-    (dolist (spell (json-read-file "./srd_spells/spells.json") spell-data)
-      (let ((this_name (alist-get 'name spell)))
-        (if (member this_name spell_names)
-            (push (cons (intern this_name) spell) spell-data)))
-      )
-    ))
-
-(alist-get 'Levitate (get-spell-data-a '("Levitate" "Gust")))
-
-#+end_src
-
-#+RESULTS:
-: ((casting_time . 1 action) (classes sorcerer wizard) (components (material . t) (materials_needed either a small leather loop or a pieee of golden wire bent into a cup shape with a long shank on one end) (raw . V, S, M (either a small leather loop or a pieee of golden wire bent into a cup shape with a long shank on one end)) (somatic . t) (verbal . t)) (description . One creature or object of your choice that you can see within range rises vertically, up to 20 feet, and remains suspended there for the duration. The spell can levitate a target that weighs up to 500 pounds. An unwilling creature that succeeds on a Constitution saving throw is unaffected.
-:
-: The target can move only by pushing or pulling against a fixed object or surface within reach (such as a wall or a ceiling), which allows it to move as if it were climbing. You can change the target's altitude by up to 20 feet in either direction on your turn. If you are the target, you can move up or down as part of your move. Otherwise, you can use your action to move the target, which must remain within the spell's range.
-:
-: When the spell ends, the target floats gently to the ground if it is still aloft.) (duration . Concentration, up to 10 minutes) (level . 2) (name . Levitate) (range . 60 feet) (ritual) (school . transmutation) (tags sorcerer wizard level2) (type . 2nd-level transmutation))
-
