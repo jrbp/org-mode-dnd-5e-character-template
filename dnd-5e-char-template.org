@@ -168,6 +168,7 @@ Light armor, simple weapons, hand crossbows, longswords,
      rapiers, shortswords, disguise kit, ...
 
  #+NAME: WEAPONS
+ #+ATTR_DND: :size normalsize
  | *Weapon*     | *ATK Bonus* | *Damage/Type*  | *Range* |
  | Rapier       |          +5 | 1d8+3 piercing |         |
  | Crossbow (l) |          +5 | 1d8+3 piercing | 80/320  |
@@ -233,8 +234,9 @@ Fill in and replace as desired none of this section is automated.
 * Spells
 
 #+begin_src elisp  :exports results :results output drawer  :var spell_table=SPELLS_KNOWN
-(print (get-spell-string))
+(print (get-spell-string spell_table '("Levitate" "Homebrew stuff")))
 #+end_src
+
 
 ** Instructions :noexport:
 Should automatically execute when exporting, reads from the SPELLS_KNOWN table to
@@ -403,6 +405,60 @@ contextual information."
 (advice-add 'org-dnd-export-to-pdf :before
             (lambda (&rest r) (org-table-iterate-buffer-tables)))
 
+
+; next few are for generating spell list
+(defun get-spell-data (spell_names)
+  "Get alist with a key for each element of SPELL_NAMES.
+Each value is the corresponding SRD data, no entry if element is not in SRD."
+  (let ((spell-data 'nil)
+        (json-array-type 'list) (json-false 'nil))
+    (dolist (spell (json-read-file "./srd_spells/spells.json") spell-data)
+      (let ((this_name (alist-get 'name spell)))
+        (if (member this_name spell_names)
+            (push (cons this_name spell) spell-data))))))
+
+(defun link-to-spellname (link-string)
+    (replace-regexp-in-string
+     "\\[\\[\\(.*\\)\\]\\[.*\\]\\]"  "\\1" link-string))
+
+(defun srd-alist-to-format-alist (spell_data)
+  "corrections given srd alist return alist to use formatting latex strings"
+  (let-alist spell_data
+    (append `((component_string . ,.components.raw)
+              (level . ,(if (equal .level "cantrip")
+                            0 .level))
+              (school . ,(if .ritual
+                             (format "%s (ritual)" .school) .school))
+              (higher_levels_string . ,(if .higher_levels
+                                           (format "\n\n*At Higher Levels.* %s"
+                                                   .higher_levels) ""))
+              (description . ,(replace-regexp-in-string "*" "-" .description)))
+            spell_data)))
+
+(defun get-spell-names (spell_table additional_spells)
+  "parse the spell table for spell names"
+  (let ((spell_names additional_spells)) ; add aditional spells here
+    (dolist (spell (cdr spell_table) spell_names)
+      (push (link-to-spellname (cadr spell)) spell_names))))
+
+(defun get-spell-string (spell_table additional_spells)
+  (let* ((spell_names (-sort #'string< (get-spell-names spell_table additional_spells)))
+         (spell_data (get-spell-data spell_names))
+         (template "\n <<${name}>>\n#+NAME: ${name}
+,#+ATTR_SPELL: :level ${level} :school ${school} :range ${range} :cast ${casting_time} :duration ${duration} :comp ${component_string}
+,#+BEGIN_SPELL\n ${description} ${higher_levels_string}\n #+END_SPELL\n")
+         (result ""))
+    (dolist (spell_n spell_names result)
+      (setq result
+            (concat result
+                    (if (a-has-key spell_data spell_n)
+                        (s-format template 'aget
+                                  (srd-alist-to-format-alist (a-get spell_data spell_n)))
+                      (s-format template
+                                (lambda (key map) (a-get map key "n/a"))
+                                `(("name" . ,spell_n)
+                                  ("description" . "Not available (liekly not in srd json)")))))))))
+
 ;;; Below are used in table calcualtions
 (defun org-dnd-char-mod-string (mod)
   (if (> mod -1)
@@ -509,57 +565,6 @@ contextual information."
     (aref slot-matrix (- (string-to-number level) 1)))
   )
 
-(defun get-spell-data (spell_names)
-  "Get alist with a key for each element of SPELL_NAMES.
-Each value is the corresponding SRD data, no entry if element is not in SRD."
-  (let ((spell-data 'nil)
-        (json-array-type 'list) (json-false 'nil))
-    (dolist (spell (json-read-file "./srd_spells/spells.json") spell-data)
-      (let ((this_name (alist-get 'name spell)))
-        (if (member this_name spell_names)
-            (push (cons this_name spell) spell-data))))))
-
-(defun link-to-spellname (link-string)
-    (replace-regexp-in-string
-     "\\[\\[\\(.*\\)\\]\\[.*\\]\\]"  "\\1" link-string))
-
-(defun srd-alist-to-format-alist (spell_data)
-  "corrections given srd alist return alist to use formatting latex strings"
-  (let-alist spell_data
-    (append `((component_string . ,.components.raw)
-              (level . ,(if (equal .level "cantrip")
-                            0 .level))
-              (school . ,(if .ritual
-                             (format "%s (ritual)" .school) .school))
-              (higher_levels_string . ,(if .higher_levels
-                                           (format "\n\n*At Higher Levels.* %s"
-                                                   .higher_levels) ""))
-              (description . ,(replace-regexp-in-string "*" "-" .description)))
-            spell_data)))
-
-(defun get-spell-names ()
-  "parse the spell table for spell names"
-  (let ((spell_names '("Levitate" "Homebrew"))) ; add aditional spells here
-    (dolist (spell (cdr spell_table) spell_names)
-      (push (link-to-spellname (cadr spell)) spell_names))))
-
-(defun get-spell-string ()
-  (let* ((spell_names (-sort #'string< (get-spell-names)))
-         (spell_data (get-spell-data spell_names))
-         (template "\n <<${name}>>\n#+NAME: ${name}
-,#+ATTR_SPELL: :level ${level} :school ${school} :range ${range} :cast ${casting_time} :duration ${duration} :comp ${component_string}
-,#+BEGIN_SPELL\n ${description} ${higher_levels_string}\n #+END_SPELL\n")
-         (result ""))
-    (dolist (spell_n spell_names result)
-      (setq result
-            (concat result
-                    (if (a-has-key spell_data spell_n)
-                        (s-format template 'aget
-                                  (srd-alist-to-format-alist (a-get spell_data spell_n)))
-                      (s-format template
-                                (lambda (key map) (a-get map key "n/a"))
-                                `(("name" . ,spell_n)
-                                  ("description" . "Not available (liekly not in srd json)")))))))))
 #+end_src
 ** Instructions :noexport:
 Run the above source block when opening the file before exporting.
