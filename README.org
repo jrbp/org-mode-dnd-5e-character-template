@@ -11,6 +11,8 @@ Functions for updating tables (as well as some fixes for our use of
 The spell descriptions are generated in a python babel block using the json file
 from [[https://github.com/vorpalhex/srd_spells][srd_spells]] (included as a git submodule).
 
+The [[https://github.com/plexus/a.el][a.el]] and [[https://github.com/magnars/s.el][s.el]] libraries are also required.
+
 Clearly org, babel, and python must all be configured appropriately.
 ** PDF Export
 Needs [[https://github.com/evanbergeron/DND-5e-LaTeX-Template][Dnd-5e-Latex-Template]] and [[https://github.com/xeals/emacs-org-dnd][emacs-org-dnd]] configured and working.
