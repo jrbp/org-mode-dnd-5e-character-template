@@ -457,7 +457,7 @@ Each value is the corresponding SRD data, no entry if element is not in SRD."
                       (s-format template
                                 (lambda (key map) (a-get map key "n/a"))
                                 `(("name" . ,spell_n)
-                                  ("description" . "Not available (liekly not in srd json)")))))))))
+                                  ("description" . "Not available (likely not in srd json)")))))))))
 
 ;;; Below are used in table calcualtions
 (defun org-dnd-char-mod-string (mod)
